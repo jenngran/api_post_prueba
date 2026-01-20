@@ -13,3 +13,14 @@ Incremental/Online con scikit‑learn (estructura partial_fit): Kaggle notebook
 KITTI‑odometry (lectura/empate de frames/ORB, base para features de navegación): Kaggle notebook
 2D Path Planning dataset (mapas+rutas óptimas) y demo CNN: Kaggle dataset, GitHub demo
 Nav2 docs (estructura, configuración, tuning): Nav2 documentation
+
+bank_robot_ws_full/
+├─ README.md
+└─ src/
+   ├─ bank_robot_nlp/          ← NLP incremental de intenciones (scikit‑learn partial_fit)
+   ├─ bank_robot_routes/       ← Aprendizaje incremental de rutas + bridge a Nav2
+   ├─ bank_robot_pathlearn/    ← Preentrenamiento con Kaggle 2D Path Planning + continual runtime
+   ├─ bank_robot_eval/         ← Tools: scenario_player (frases) + demo_metrics (KPIs)
+   └─ bank_robot_bringup/
+      ├─ robot_service.launch.py
+      └─ worlds/banco_realista.world
