@@ -128,3 +128,22 @@ NO_PREFIX
 === Lanzando ===
 Package 'bank_robot_bringup' not found: "package 'bank_robot_bringup' not found, searching: ['/opt/ros/humble']"
 LAUNCH_FALLO
+
+
+cd /root/bank_robot_ws_full
+
+# 1) Underlay de Humble
+source /opt/ros/humble/setup.bash
+
+# 2) Overlay del workspace (¡este es el que falta!)
+source install/setup.bash
+
+# 3) Comprueba que ahora sí aparece el overlay primero
+echo "$AMENT_PREFIX_PATH" | tr ':' '\n'
+
+# 4) Verifica que ROS ve el paquete
+ros2 pkg list | grep -i bank_robot_bringup
+
+# 5) Lanza
+ros2 launch bank_robot_bringup robot_service.launch.py
+
