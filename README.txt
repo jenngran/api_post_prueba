@@ -147,3 +147,14 @@ ros2 pkg list | grep -i bank_robot_bringup
 # 5) Lanza
 ros2 launch bank_robot_bringup robot_service.launch.py
 
+
+echo $SHELL
+cd /root/bank_robot_ws_full
+source /opt/ros/humble/setup.bash || echo HUMBLE_FAIL
+source install/setup.bash || echo OVERLAY_FAIL
+echo "=== AMENT_PREFIX_PATH ==="; echo "$AMENT_PREFIX_PATH" | tr ':' '\n'
+ros2 pkg list | grep -i bank || echo "NADA"
+ros2 pkg prefix bank_robot_bringup || echo "NO_PREFIX"
+ls -la $(ros2 pkg prefix bank_robot_bringup)/share/bank_robot_bringup/launch 2>/dev/null || echo "SIN_LAUNCH"
+
+
