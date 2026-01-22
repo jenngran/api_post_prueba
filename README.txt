@@ -241,3 +241,94 @@ Package not found
 SIN_LAUNCH
 
 
+
+cd /root/bank_robot_ws_full
+
+# Ver si existen los setups
+ls -la install | sed -n '1,200p'
+ls -la install/setup.bash || echo "NO_SETUP"
+ls -la install/local_setup.bash || echo "NO_LOCAL_SETUP"
+
+# Ver contenido básico (debe tener exports/ament hooks)
+head -n 40 install/setup.bash || echo "NO_SETUP_FILE"
+head -n 40 install/local_setup.bash || echo "NO_LOCAL_SETUP_FILE"
+
+
+
+# Underlay de Humble
+source /opt/ros/humble/setup.bash
+
+# Intenta cargar el overlay y muestra si falla
+set -o pipefail
+( set -x; source install/setup.bash ) 2>&1 | sed -n '1,120p' || echo "SOURCE_SETUP_BASH_FALLO"
+
+echo "=== AMENT_PREFIX_PATH luego de setup.bash ==="
+echo "$AMENT_PREFIX_PATH" | tr ':' '\n'
+
+
+
+( set -x; source install/local_setup.bash ) 2>&1 | sed -n '1,120p' || echo "SOURCE_LOCAL_SETUP_FALLO"
+echo "=== AMENT_PREFIX_PATH luego de local_setup.bash ==="
+echo "$AMENT_PREFIX_PATH" | tr ':' '\n'
+
+
+
+export AMENT_PREFIX_PATH="/root/bank_robot_ws_full/install/bank_robot_bringup:${AMENT_PREFIX_PATH}"
+echo "$AMENT_PREFIX_PATH" | tr ':' '\n'
+
+# Ahora ROS debería ver el paquete
+ros2 pkg list | grep -i bank || echo "NADA"
+
+# Si ya lo ve, lanza:
+ros2 launch bank_robot_bringup robot_service.launch.py
+
+
+
+cd /root/bank_robot_ws_full
+rm -rf build/ install/ log/
+
+# Underlay primero
+source /opt/ros/humble/setup.bash
+
+# Build verboso
+colcon build --symlink-install --event-handlers console_direct+ status- --packages-select bank_robot_bringup
+
+# Verifica que el setup ahora exista
+ls -la install/setup.bash
+ls -la install/local_setup.bash
+
+# Carga el overlay
+source install/setup.bash || source install/local_setup.bash
+
+# Revisa el PATH de ament
+echo "$AMENT_PREFIX_PATH" | tr ':' '\n'
+
+# Deberías ver el paquete
+ros2 pkg list | grep -i bank || echo "NADA"
+ros2 pkg prefix bank_robot_bringup || echo "NO_PREFIX"
+
+# Lanza
+ros2 launch bank_robot_bringup robot_service.launch.py
+
+
+cd /root/bank_robot_ws_full
+echo "SHELL=$SHELL"
+echo "PWD=$(pwd)"
+ls -la install | sed -n '1,200p'
+ls -la install/setup.bash || echo NO_SETUP
+ls -la install/local_setup.bash || echo NO_LOCAL_SETUP
+grep -n \"AMENT_PREFIX_PATH\" install/setup.bash 2>/dev/null || echo "NO_AMENT_IN_SETUP"
+grep -n \"AMENT_PREFIX_PATH\" install/local_setup.bash 2>/dev/null || echo "NO_AMENT_IN_LOCAL_SETUP"
+source /opt/ros/humble/setup.bash
+source install/setup.bash || echo OVERLAY_FAIL_1
+echo "=== AMENT_PREFIX_PATH tras setup.bash ==="; echo "$AMENT_PREFIX_PATH" | tr ':' '\n'
+source install/local_setup.bash || echo OVERLAY_FAIL_2
+echo "=== AMENT_PREFIX_PATH tras local_setup.bash ==="; echo "$AMENT_PREFIX_PATH" | tr ':' '\n'
+ros2 pkg list | grep -i bank || echo "NADA"
+``
+
+
+
+# Bash:
+echo 'source /opt/ros/humble/setup.bash' >> ~/.bashrc
+echo 'source /root/bank_robot_ws_full/install/setup.bash' >> ~/.bashrc
