@@ -85,3 +85,46 @@ fi
 echo "=== Lanzando ==="
 ros2 launch bank_robot_bringup robot_service.launch.py || echo "LAUNCH_FALLO"
 
+Starting >>> bank_robot_bringup
+running develop
+running egg_info
+creating bank_robot_bringup.egg-info
+writing bank_robot_bringup.egg-info/PKG-INFO
+writing dependency_links to bank_robot_bringup.egg-info/dependency_links.txt
+writing entry points to bank_robot_bringup.egg-info/entry_points.txt
+writing requirements to bank_robot_bringup.egg-info/requires.txt
+writing top-level names to bank_robot_bringup.egg-info/top_level.txt
+writing manifest file 'bank_robot_bringup.egg-info/SOURCES.txt'
+reading manifest file 'bank_robot_bringup.egg-info/SOURCES.txt'
+writing manifest file 'bank_robot_bringup.egg-info/SOURCES.txt'
+running build_ext
+Creating /root/bank_robot_ws_full/install/bank_robot_bringup/lib/python3.10/site-packages/bank-robot-bringup.egg-link (link to .)
+Installing robot_service_node script to /root/bank_robot_ws_full/install/bank_robot_bringup/bin
+
+Installed /root/bank_robot_ws_full/build/bank_robot_bringup
+running symlink_data
+creating /root/bank_robot_ws_full/install/bank_robot_bringup/share
+creating /root/bank_robot_ws_full/install/bank_robot_bringup/share/ament_index
+creating /root/bank_robot_ws_full/install/bank_robot_bringup/share/ament_index/resource_index
+creating /root/bank_robot_ws_full/install/bank_robot_bringup/share/ament_index/resource_index/packages
+symbolically linking /root/bank_robot_ws_full/build/bank_robot_bringup/resource/bank_robot_bringup -> /root/bank_robot_ws_full/install/bank_robot_bringup/share/ament_index/resource_index/packages
+creating /root/bank_robot_ws_full/install/bank_robot_bringup/share/bank_robot_bringup
+symbolically linking /root/bank_robot_ws_full/build/bank_robot_bringup/package.xml -> /root/bank_robot_ws_full/install/bank_robot_bringup/share/bank_robot_bringup
+creating /root/bank_robot_ws_full/install/bank_robot_bringup/share/bank_robot_bringup/launch
+symbolically linking /root/bank_robot_ws_full/build/bank_robot_bringup/launch/robot_service.launch.py -> /root/bank_robot_ws_full/install/bank_robot_bringup/share/bank_robot_bringup/launch
+Finished <<< bank_robot_bringup [2.16s]
+
+Summary: 1 package finished [3.61s]
+=== which ros2 ===
+ros2 is /opt/ros/humble/bin/ros2
+=== AMENT_PREFIX_PATH ===
+/opt/ros/humble
+=== Paquetes visibles (grep bank) ===
+NADA
+=== Prefijo del paquete ===
+Package not found
+NO_PREFIX
+=== Launch instalados ===
+=== Lanzando ===
+Package 'bank_robot_bringup' not found: "package 'bank_robot_bringup' not found, searching: ['/opt/ros/humble']"
+LAUNCH_FALLO
