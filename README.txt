@@ -157,4 +157,87 @@ ros2 pkg list | grep -i bank || echo "NADA"
 ros2 pkg prefix bank_robot_bringup || echo "NO_PREFIX"
 ls -la $(ros2 pkg prefix bank_robot_bringup)/share/bank_robot_bringup/launch 2>/dev/null || echo "SIN_LAUNCH"
 
+Starting >>> bank_robot_bringup
+running develop
+running egg_info
+creating bank_robot_bringup.egg-info
+writing bank_robot_bringup.egg-info/PKG-INFO
+writing dependency_links to bank_robot_bringup.egg-info/dependency_links.txt
+writing entry points to bank_robot_bringup.egg-info/entry_points.txt
+writing requirements to bank_robot_bringup.egg-info/requires.txt
+writing top-level names to bank_robot_bringup.egg-info/top_level.txt
+writing manifest file 'bank_robot_bringup.egg-info/SOURCES.txt'
+reading manifest file 'bank_robot_bringup.egg-info/SOURCES.txt'
+writing manifest file 'bank_robot_bringup.egg-info/SOURCES.txt'
+running build_ext
+Creating /root/bank_robot_ws_full/install/bank_robot_bringup/lib/python3.10/site-packages/bank-robot-bringup.egg-link (link to .)
+Installing robot_service_node script to /root/bank_robot_ws_full/install/bank_robot_bringup/bin
+
+Installed /root/bank_robot_ws_full/build/bank_robot_bringup
+running symlink_data
+creating /root/bank_robot_ws_full/install/bank_robot_bringup/share
+creating /root/bank_robot_ws_full/install/bank_robot_bringup/share/ament_index
+creating /root/bank_robot_ws_full/install/bank_robot_bringup/share/ament_index/resource_index
+creating /root/bank_robot_ws_full/install/bank_robot_bringup/share/ament_index/resource_index/packages
+symbolically linking /root/bank_robot_ws_full/build/bank_robot_bringup/resource/bank_robot_bringup -> /root/bank_robot_ws_full/install/bank_robot_bringup/share/ament_index/resource_index/packages
+creating /root/bank_robot_ws_full/install/bank_robot_bringup/share/bank_robot_bringup
+symbolically linking /root/bank_robot_ws_full/build/bank_robot_bringup/package.xml -> /root/bank_robot_ws_full/install/bank_robot_bringup/share/bank_robot_bringup
+creating /root/bank_robot_ws_full/install/bank_robot_bringup/share/bank_robot_bringup/launch
+symbolically linking /root/bank_robot_ws_full/build/bank_robot_bringup/launch/robot_service.launch.py -> /root/bank_robot_ws_full/install/bank_robot_bringup/share/bank_robot_bringup/launch
+Finished <<< bank_robot_bringup [2.16s]
+
+Summary: 1 package finished [3.61s]
+=== which ros2 ===
+ros2 is /opt/ros/humble/bin/ros2
+=== AMENT_PREFIX_PATH ===
+/opt/ros/humble
+=== Paquetes visibles (grep bank) ===
+NADA
+=== Prefijo del paquete ===
+Package not found
+NO_PREFIX
+=== Launch instalados ===
+=== Lanzando ===
+Package 'bank_robot_bringup' not found: "package 'bank_robot_bringup' not found, searching: ['/opt/ros/humble']"
+LAUNCH_FALLO
+root@JenLapt:~/bank_robot_ws_full#
+root@JenLapt:~/bank_robot_ws_full# echo $shell
+
+root@JenLapt:~/bank_robot_ws_full# echo $SHELL
+/bin/bash
+root@JenLapt:~/bank_robot_ws_full# cd /root/bank_robot_ws_full
+
+# 1) Underlay de Humble
+source /opt/ros/humble/setup.bash
+
+# 2) Overlay del workspace (¡este es el que falta!)
+source install/setup.bash
+
+# 3) Comprueba que ahora sí aparece el overlay primero
+echo "$AMENT_PREFIX_PATH" | tr ':' '\n'
+
+# 4) Verifica que ROS ve el paquete
+ros2 pkg list | grep -i bank_robot_bringup
+
+# 5) Lanza
+ros2 launch bank_robot_bringup robot_service.launch.py
+/opt/ros/humble
+Package 'bank_robot_bringup' not found: "package 'bank_robot_bringup' not found, searching: ['/opt/ros/humble']"
+root@JenLapt:~/bank_robot_ws_full# echo $SHELL
+cd /root/bank_robot_ws_full
+source /opt/ros/humble/setup.bash || echo HUMBLE_FAIL
+source install/setup.bash || echo OVERLAY_FAIL
+echo "=== AMENT_PREFIX_PATH ==="; echo "$AMENT_PREFIX_PATH" | tr ':' '\n'
+ros2 pkg list | grep -i bank || echo "NADA"
+ros2 pkg prefix bank_robot_bringup || echo "NO_PREFIX"
+ls -la $(ros2 pkg prefix bank_robot_bringup)/share/bank_robot_bringup/launch 2>/dev/null || echo "SIN_LAUNCH"
+/bin/bash
+=== AMENT_PREFIX_PATH ===
+/opt/ros/humble
+NADA
+Package not found
+NO_PREFIX
+Package not found
+SIN_LAUNCH
+
 
