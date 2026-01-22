@@ -1,3 +1,7 @@
+NEW RESPONSE
+All log files can be found below /root/.ros/log/2026-01-21-23-29-45-015714-JenLapt-2237
+[INFO] [launch]: Default logging verbosity is set to INFO
+[ERROR] [launch]: Caught exception in launch (see debug for traceback): package 'bank_robot_bringup' found at '/root/bank_robot_ws_full/install/bank_robot_bringup', but libexec directory '/root/bank_robot_ws_full/install/bank_robot_bringup/lib/bank_robot_bringup' does not exist
 
 export AMENT_PREFIX_PATH="/root/bank_robot_ws_full/install:/root/bank_robot_ws_full/install/bank_robot_bringup:${AMENT_PREFIX_PATH}"
 echo "$AMENT_PREFIX_PATH" | tr ':' '\n'
