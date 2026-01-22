@@ -3,3 +3,62 @@ export AMENT_PREFIX_PATH="/root/bank_robot_ws_full/install:/root/bank_robot_ws_f
 echo "$AMENT_PREFIX_PATH" | tr ':' '\n'
 ros2 pkg list | grep -i bank || echo "NADA"
 ros2 launch bank_robot_bringup robot_service.launch.py
+
+--------------------------------------
+
+cd /root/bank_robot_ws_full
+
+# 1) Debe existir este archivo con el nombre del paquete:
+ls -la install/bank_robot_bringup/share/ament_index/resource_index/packages/bank_robot_bringup \
+  || echo "FALTA_RESOURCE"
+
+# 2) Mira su contenido (normalmente el nombre del paquete o ruta):
+cat install/bank_robot_bringup/share/ament_index/resource_index/packages/bank_robot_bringup 2>/dev/null \
+  || echo "NO_CONTENT"
+
+# 3) Y debería existir la carpeta share del paquete con launch:
+ls -la install/bank_robot_bringup/share/bank_robot_bringup/launch \
+  || echo "FALTA_LAUNCH_DIR"
+-------------------------------------------------
+
+
+cd /root/bank_robot_ws_full
+source /opt/ros/humble/setup.bash
+
+# Fuente directa del paquete
+source install/bank_robot_bringup/local_setup.bash || echo "FALLO_LOCAL_SETUP_PKG"
+
+# Ahora el AMENT_PREFIX_PATH debería incluir el prefijo del paquete
+echo "=== AMENT_PREFIX_PATH ==="
+echo "$AMENT_PREFIX_PATH" | tr ':' '\n'
+
+# ¿Ya lo ve?
+ros2 pkg list | grep -i bank || echo "NADA"
+ros2 pkg prefix bank_robot_bringup || echo "NO_PREFIX"
+
+# Si ya aparece, lanza:
+ros2 launch bank_robot_bringup robot_service.launch.py
+---------------------------------------------------------------------
+
+cd /root/bank_robot_ws_full
+set -x
+source /opt/ros/humble/setup.bash
+source install/setup.bash
+set +x
+
+echo "=== AMENT_PREFIX_PATH ==="
+echo "$AMENT_PREFIX_PATH" | tr ':' '\n'
+``
+
+-------------------------------------------------------------------------
+
+readonly | grep -E '^declare -r AMENT_PREFIX_PATH=' || echo "NO_READONLY"
+declare -p AMENT_PREFIX_PATH || echo "NO_DECLARE"
+
+bash --noprofile --norc
+source /opt/ros/humble/setup.bash
+cd /root/bank_robot_ws_full
+source install/setup.bash
+echo "$AMENT_PREFIX_PATH" | tr ':' '\n'
+ros2 pkg list | grep -i bank || echo "NADA"
+grep -nE 'ros|ament|humble|AMENT_PREFIX_PATH' -i ~/.bashrc || echo NO_BASHRC_ENTRIES
