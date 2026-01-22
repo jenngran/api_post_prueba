@@ -1,0 +1,5 @@
+
+export AMENT_PREFIX_PATH="/root/bank_robot_ws_full/install:/root/bank_robot_ws_full/install/bank_robot_bringup:${AMENT_PREFIX_PATH}"
+echo "$AMENT_PREFIX_PATH" | tr ':' '\n'
+ros2 pkg list | grep -i bank || echo "NADA"
+ros2 launch bank_robot_bringup robot_service.launch.py
