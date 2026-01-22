@@ -1,3 +1,33 @@
+NEW SOLUTION
+
+# 0) Ubícate en el workspace
+cd /root/bank_robot_ws_full
+
+# 1) Crea el setup.cfg en el paquete
+cat > src/bank_robot_bringup/setup.cfg <<'CFG'
+[develop]
+script_dir=$base/lib/bank_robot_bringup
+
+[install]
+install_scripts=$base/lib/bank_robot_bringup
+CFG
+
+# 2) Limpia e instala de nuevo
+rm -rf build/ install/ log/
+source /opt/ros/humble/setup.bash
+colcon build --symlink-install --packages-select bank_robot_bringup
+
+# 3) Carga el overlay
+source install/setup.bash
+
+# 4) Verifica que ahora sí exista el libexec del paquete y el script dentro
+ls -la install/bank_robot_bringup/lib/bank_robot_bringup
+
+# 5) Lanza
+ros2 launch bank_robot_bringup robot_service.launch.py
+
+------------------------------------------------------------------------
+
 NEW RESPONSE
 All log files can be found below /root/.ros/log/2026-01-21-23-29-45-015714-JenLapt-2237
 [INFO] [launch]: Default logging verbosity is set to INFO
