@@ -1,0 +1,247 @@
+--------En tu repo bank_robot_bringup, agrega worlds/bank_branch.sdf:-------------
+<?xml version="1.6" ?>
+<sdf version="1.7">
+  <world name="bank_branch_world">
+    <physics type="ignored"/>
+    <gravity>0 0 -9.81</gravity>
+
+    <!-- Piso -->
+    <model name="floor">
+      <static>true</static>
+      <link name="link">
+        <collision name="col">
+          <geometry><box><size>20 12 0.1</size></box></geometry>
+          <pose>0 0 -0.05 0 0 0</pose>
+        </collision>
+        <visual name="vis">
+          <geometry><box><size>20 12 0.1</size></box></geometry>
+          <material><ambient>0.3 0.3 0.3 1</ambient></material>
+          <pose>0 0 -0.05 0 0 0</pose>
+        </visual>
+      </link>
+    </model>
+
+    <!-- 5 mostradores (tellers) -->
+    <!-- Puedes replicar con diferentes poses -->
+    <include>
+      <uri>model://box</uri>
+      <name>teller_1</name>
+      <pose>-6 4 0.5 0 0 0</pose>
+    </include>
+    <include><uri>model://box</uri><name>teller_2</name><pose>-3 4 0.5 0 0 0</pose></include>
+    <include><uri>model://box</uri><name>teller_3</name><pose>0 4 0.5 0 0 0</pose></include>
+    <include><uri>model://box</uri><name>teller_4</name><pose>3 4 0.5 0 0 0</pose></include>
+    <include><uri>model://box</uri><name>teller_5</name><pose>6 4 0.5 0 0 0</pose></include>
+
+    <!-- 4 cajeros ATM -->
+    <include><uri>model://box</uri><name>atm_1</name><pose>-7 -3 1 0 0 0</pose></include>
+    <include><uri>model://box</uri><name>atm_2</name><pose>-4 -3 1 0 0 0</pose></include>
+    <include><uri>model://box</uri><name>atm_3</name><pose>4 -3 1 0 0 0</pose></include>
+    <include><uri>model://box</uri><name>atm_4</name><pose>7 -3 1 0 0 0</pose></include>
+
+    <!-- Barreras (fila) como cajas pequeñas -->
+    <!-- opcional: añade más decoración/paredes -->
+  </world>
+</sdf>
+
+------Para que Gazebo encuentre mundos y modelos dentro de tu paquete, añade un export en package.xml que agregue rutas a GZ_SIM_RESOURCE_PATH (se hace con <gazebo_ros ... /> en <export>). Lo explica el README de ros_gz_sim. [github.com]
+
+En package.xml (sección <export>):----------------------
+
+
+<export>
+  <build_type>ament_python</build_type>
+  <!-- Añade rutas de recursos para Gazebo (modelos/mundos del paquete) -->
+  <gazebo_ros gazebo_model_path="${prefix}/models" gazebo_media_path="${prefix}" />
+</export>
+
+--------------Y en setup.py, instala worlds/ (y models/ si luego añades modelos propios):----------------------
+
+('share/' + package_name + '/worlds', glob('worlds/*.sdf')),
+# si usas modelos:
+# ('share/' + package_name + '/models', glob('models/**', recursive=True)),
+
+
+2) Define un robot diferencial mínimo (URDF) + ros2_control
+Crea urdf/bankbot.urdf con un robot básico (cuerpo + 2 ruedas) y ros2_control:
+
+
+
+<?xml version="1.0"?>
+<robot name="bankbot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Base -->
+  <link name="base_link">
+    <inertial><mass value="5"/><inertia ixx="0.2" iyy="0.2" izz="0.2"/></inertial>
+    <visual><geometry><cylinder length="0.25" radius="0.3"/></geometry></visual>
+    <collision><geometry><cylinder length="0.25" radius="0.3"/></geometry></collision>
+  </link>
+
+  <!-- Ruedas -->
+  <link name="wheel_left"/>
+  <link name="wheel_right"/>
+
+  <joint name="joint_wheel_left" type="continuous">
+    <parent link="base_link"/><child link="wheel_left"/>
+    <origin xyz="0 0.25 0" rpy="0 1.5708 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <joint name="joint_wheel_right" type="continuous">
+    <parent link="base_link"/><child link="wheel_right"/>
+    <origin xyz="0 -0.25 0" rpy="0 1.5708 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <!-- ros2_control: usar gz_ros2_control en Gazebo -->
+  <ros2_control name="GazeboSystem" type="system">
+    <hardware>
+      <plugin>gz_ros2_control/GazeboSystem</plugin>
+    </hardware>
+    <joint name="joint_wheel_left">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="joint_wheel_right">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+
+</robot>
+----------- gz_ros2_control es el plugin recomendado para Gazebo (moderno) con Humble; hay binarios ros-humble-gz-ros2-control. (Ojo: Gazebo Classic está EOL; no lo uses para proyectos nuevos). [control.ros.org], [control.ros.org]
+
+Configura controladores en config/controllers.yaml:-----------------
+
+
+controller_manager:
+  ros__parameters:
+    update_rate: 100
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    diff_drive_base:
+      type: diff_drive_controller/DiffDriveController
+
+diff_drive_base:
+  ros__parameters:
+    publish_rate: 50.0
+    base_frame_id: base_link
+    left_wheel_names:  ["joint_wheel_left"]
+    right_wheel_names: ["joint_wheel_right"]
+    wheel_separation: 0.50
+    wheel_radius: 0.10
+    cmd_vel_timeout: 0.5
+    use_stamped_vel: false
+    enable_odom_tf: true
+
+
+-------En setup.py añade instalación de urdf y config:-------------
+
+
+('share/' + package_name + '/urdf', glob('urdf/*')),
+('share/' + package_name + '/config', glob('config/*.yaml')),
+
+
+-------3) Launch: Gazebo + mundo + robot + control + RViz
+Crea launch/bank_branch_gz.launch.py:-------------
+
+
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, TimerAction
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
+from ament_index_python.packages import get_package_share_directory
+import os
+
+def generate_launch_description():
+    pkg = get_package_share_directory('bank_robot_bringup')
+    world = os.path.join(pkg, 'worlds', 'bank_branch.sdf')
+    urdf  = os.path.join(pkg, 'urdf',   'bankbot.urdf')
+    ctrl  = os.path.join(pkg, 'config', 'controllers.yaml')
+
+    # 1) Arranca Gazebo (Fortress) con el mundo
+    gz = ExecuteProcess(
+        cmd=['ign', 'gazebo', '-r', world],
+        output='screen'
+    )
+
+    # 2) Publica robot_description y spawn en Gazebo vía ros_gz_sim
+    rsp = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        name='robot_state_publisher',
+        parameters=[{'use_sim_time': True,
+                     'robot_description': open(urdf).read()}],
+        output='screen'
+    )
+
+    # ros_gz_sim: crear entidad desde URDF
+    spawn = Node(
+        package='ros_gz_sim',
+        executable='create',
+        arguments=['-file', urdf, '-name', 'bankbot', '-x', '0', '-y', '-2', '-z', '0.15'],
+        output='screen'
+    )
+
+    # 3) Spawnear controladores sobre el controller_manager de gz_ros2_control
+    jsb = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['joint_state_broadcaster', '--controller-manager', '/controller_manager'],
+        output='screen'
+    )
+    dd  = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['diff_drive_base', '--controller-manager', '/controller_manager'],
+        output='screen'
+    )
+
+    # 4) RViz opcional (usa tu .rviz si quieres)
+    rviz = Node(
+        package='rviz2', executable='rviz2', output='screen',
+        arguments=[]
+    )
+
+    return LaunchDescription([
+        gz,
+        rsp,
+        # da 2 s para que arranque el server antes de spawnear
+        TimerAction(period=2.0, actions=[spawn]),
+        TimerAction(period=4.0, actions=[jsb, dd]),
+        # TimerAction(period=6.0, actions=[rviz])  # descomenta si quieres RViz
+    ])
+El puente ROS↔Gazebo lo proporciona ros_gz/ros_gz_sim y su tooling (create, gz_sim.launch.py, etc.). Mira el README: lanzar Gazebo con ROS y spawnear entidades es exactamente este patrón. [github.com]
+El tutorial oficial muestra también cómo puentear tópicos con ros_gz_bridge si lo necesitas (por ejemplo, sensores), con la sintaxis /TOPIC@ROS_MSG@GZ_MSG. [gazebosim.org], [gazebosim.org]
+
+
+----4) Compilar y lanzar---------
+cd ~/bank_robot_ws_full
+source /opt/ros/humble/setup.bash
+
+colcon build --symlink-install --packages-select bank_robot_bringup
+source install/setup.bash
+
+# Lanza Gazebo + sucursal + robot + control
+ros2 launch bank_robot_bringup bank_branch_gz.launch.py
+
+-----5) Mover el robot (teleop)-------
+
+# en otra terminal con overlay cargado
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
+# publica a /cmd_vel (si tu controlador usa _unstamped: remapea o ajusta el param use_stamped_vel=false)
+
+
+Notas y comprobaciones
+
+----Combinación recomendada (Humble): Gazebo Fortress + ros_gz. Si más adelante migras a Harmonic o Garden en Humble, es posible pero “con cautela” (puede requerir compilar desde fuente y ajustar GZ_VERSION). [gazebosim.org]
+gz_ros2_control es el plugin moderno (sistema) para traer ros2_control a Gazebo Sim; hay binarios en Humble y documentación actualizada. [control.ros.org], [github.com]
+Spawnear URDFs y gestionar recursos/modelos desde un paquete ROS con GZ_SIM_RESOURCE_PATH está documentado en ros_gz_sim README. [github.com]
+Si prefieres lanzar Gazebo desde ROS sin ign gazebo, también puedes usar-----
+
+ros2 launch ros_gz_sim gz_sim.launch.py gz_args:="empty.sdf" y luego spawnear tu URDF con ros2 run ros_gz_sim create
+
